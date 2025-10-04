@@ -1,0 +1,1355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zeegrid Billing - Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #2ba5d1;
+            --primary-dark: #228fb3;
+            --sidebar-bg: #2ba5d1;
+            --text-dark: #333;
+            --text-light: #666;
+            --border-color: #e0e0e0;
+            --bg-light: #f5f7fa;
+            --white: #ffffff;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --chart-blue: #2ba5d1;
+            --chart-green: #8bc34a;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+        }
+
+        .app-container {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 260px;
+            background: linear-gradient(180deg, var(--sidebar-bg) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-header {
+            padding: 30px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-icon {
+            width: 30px;
+            height: 30px;
+            background: var(--white);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            margin: 20px;
+        }
+
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            background: var(--white);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-color);
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .user-details h3 {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .user-details p {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-top: 2px;
+        }
+
+        .nav-menu {
+            flex: 1;
+            padding: 20px 0;
+            overflow-y: auto;
+        }
+
+        .nav-item {
+            padding: 14px 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 15px;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-left-color: var(--white);
+        }
+
+        .nav-item.active {
+            background: rgba(255, 255, 255, 0.15);
+            border-left-color: var(--white);
+            font-weight: 600;
+        }
+
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .top-bar {
+            background: var(--white);
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            z-index: 10;
+        }
+
+        .top-bar-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .page-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .icon-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            transition: background 0.3s ease;
+            color: var(--text-light);
+        }
+
+        .icon-button:hover {
+            background: var(--bg-light);
+        }
+
+        .content-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 30px;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        /* Dashboard Styles */
+        .currency-toggle {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            justify-content: flex-end;
+        }
+
+        .currency-btn {
+            padding: 8px 20px;
+            border: 1px solid var(--border-color);
+            background: var(--white);
+            cursor: pointer;
+            border-radius: 20px;
+            font-size: 13px;
+            transition: all 0.3s ease;
+        }
+
+        .currency-btn.active {
+            background: var(--primary-color);
+            color: var(--white);
+            border-color: var(--primary-color);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--white);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.12);
+        }
+
+        .stat-header {
+            font-size: 14px;
+            color: var(--text-light);
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+
+        .stat-values {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .stat-amount {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+        }
+
+        .amount-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .amount-currency {
+            font-size: 14px;
+            color: var(--text-light);
+        }
+
+        .more-link {
+            color: var(--primary-color);
+            font-size: 13px;
+            cursor: pointer;
+            margin-top: 10px;
+            display: inline-block;
+        }
+
+        .more-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Chart Styles */
+        .chart-container {
+            background: var(--white);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            margin-bottom: 25px;
+        }
+
+        .chart-header {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--text-dark);
+        }
+
+        .chart-canvas {
+            width: 100%;
+            height: 300px;
+            position: relative;
+        }
+
+        .chart-legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 15px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 12px;
+            border-radius: 2px;
+        }
+
+        /* Table Styles */
+        .data-table {
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+
+        .table-header {
+            padding: 20px 25px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .search-box {
+            padding: 8px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 14px;
+            width: 250px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: var(--bg-light);
+        }
+
+        th {
+            padding: 15px 25px;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-light);
+            text-transform: uppercase;
+        }
+
+        td {
+            padding: 18px 25px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        tbody tr:hover {
+            background: var(--bg-light);
+        }
+
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        .status-paid {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .status-pending {
+            background: #fff3e0;
+            color: #e65100;
+        }
+
+        .status-draft {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+
+        .action-button {
+            padding: 8px 16px;
+            background: var(--primary-color);
+            color: var(--white);
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: background 0.3s ease;
+        }
+
+        .action-button:hover {
+            background: var(--primary-dark);
+        }
+
+        .action-button.secondary {
+            background: var(--bg-light);
+            color: var(--text-dark);
+        }
+
+        .action-button.secondary:hover {
+            background: var(--border-color);
+        }
+
+        /* FAB Button */
+        .fab {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: #ff5722;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255, 87, 34, 0.4);
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .fab:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(255, 87, 34, 0.5);
+        }
+
+        /* Form Styles */
+        .form-container {
+            background: var(--white);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            max-width: 800px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 14px;
+            color: var(--text-dark);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-light);
+        }
+
+        .empty-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        .empty-text {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .empty-subtext {
+            font-size: 14px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                left: 0;
+                top: 0;
+                height: 100vh;
+                z-index: 100;
+                transform: translateX(-100%);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .menu-toggle {
+                display: block;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .content-area {
+                padding: 20px;
+            }
+        }
+
+        /* SVG Icons */
+        .icon {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        /* Simple Chart Drawing */
+        canvas {
+            max-width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-icon">Z</div>
+                    <span>Zeegrid Billing</span>
+                </div>
+            </div>
+
+            <div class="user-info">
+                <div class="user-avatar">O</div>
+                <div class="user-details">
+                    <h3>OSB</h3>
+                    <p>demo@zeegridbilling.org</p>
+                </div>
+            </div>
+
+            <nav class="nav-menu">
+                <div class="nav-item active" onclick="navigateTo('dashboard')">
+                    <span class="nav-icon">📊</span>
+                    <span>Dashboard</span>
+                </div>
+                <div class="nav-item" onclick="navigateTo('invoices')">
+                    <span class="nav-icon">📄</span>
+                    <span>Invoices</span>
+                </div>
+                <div class="nav-item" onclick="navigateTo('estimates')">
+                    <span class="nav-icon">🧮</span>
+                    <span>Estimates</span>
+                </div>
+                <div class="nav-item" onclick="navigateTo('payments')">
+                    <span class="nav-icon">💳</span>
+                    <span>Payments</span>
+                </div>
+                <div class="nav-item" onclick="navigateTo('clients')">
+                    <span class="nav-icon">👥</span>
+                    <span>Clients</span>
+                </div>
+                <div class="nav-item" onclick="navigateTo('items')">
+                    <span class="nav-icon">📦</span>
+                    <span>Items</span>
+                </div>
+                <div class="nav-item" onclick="navigateTo('taxes')">
+                    <span class="nav-icon">💰</span>
+                    <span>Taxes</span>
+                </div>
+                <div class="nav-item" onclick="navigateTo('reports')">
+                    <span class="nav-icon">📈</span>
+                    <span>Reports</span>
+                </div>
+                <div class="nav-item" onclick="navigateTo('settings')">
+                    <span class="nav-icon">⚙️</span>
+                    <span>Settings</span>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Bar -->
+            <header class="top-bar">
+                <div class="top-bar-left">
+                    <button class="menu-toggle" onclick="toggleSidebar()">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg>
+                    </button>
+                    <h1 class="page-title">
+                        <span>🏢</span>
+                        <span id="pageTitle">Test</span>
+                    </h1>
+                </div>
+                <div class="top-bar-right">
+                    <button class="icon-button" title="Notifications">🔔</button>
+                    <button class="icon-button" title="Help">❓</button>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <div class="content-area">
+                <!-- Dashboard Page -->
+                <div id="dashboard" class="page active">
+                    <div class="currency-toggle">
+                        <button class="currency-btn active">ACTUAL CURRENCY</button>
+                        <button class="currency-btn">BASE CURRENCY</button>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-header">Amount Billed</div>
+                            <div class="stat-values">
+                                <div class="stat-amount">
+                                    <span class="amount-value">1,275.81</span>
+                                    <span class="amount-currency">INR</span>
+                                </div>
+                                <div class="stat-amount">
+                                    <span class="amount-value">15,280.76</span>
+                                    <span class="amount-currency">PKR</span>
+                                </div>
+                                <div class="stat-amount">
+                                    <span class="amount-value">14,700.00</span>
+                                    <span class="amount-currency">MYR</span>
+                                </div>
+                            </div>
+                            <a class="more-link">more</a>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-header">YTD Income</div>
+                            <div class="stat-values">
+                                <div class="stat-amount">
+                                    <span class="amount-value">0.00</span>
+                                    <span class="amount-currency">INR</span>
+                                </div>
+                                <div class="stat-amount">
+                                    <span class="amount-value">0.00</span>
+                                    <span class="amount-currency">PKR</span>
+                                </div>
+                                <div class="stat-amount">
+                                    <span class="amount-value">0.00</span>
+                                    <span class="amount-currency">MYR</span>
+                                </div>
+                            </div>
+                            <a class="more-link">more</a>
+                        </div>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-header">Payment</div>
+                            <div class="stat-values">
+                                <div class="stat-amount">
+                                    <span class="amount-value">200.00</span>
+                                    <span class="amount-currency">UYU</span>
+                                </div>
+                                <div class="stat-amount">
+                                    <span class="amount-value">63,572.00</span>
+                                    <span class="amount-currency">SHP</span>
+                                </div>
+                                <div class="stat-amount">
+                                    <span class="amount-value">1,071.07</span>
+                                    <span class="amount-currency">EUR</span>
+                                </div>
+                            </div>
+                            <a class="more-link">more</a>
+                        </div>
+                    </div>
+
+                    <div class="chart-container">
+                        <div class="chart-header">Invoices</div>
+                        <div class="chart-canvas">
+                            <canvas id="invoicesChart"></canvas>
+                        </div>
+                        <div class="chart-legend">
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: #2ba5d1;"></div>
+                                <span>PKR</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: #8bc34a;"></div>
+                                <span>CAD</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chart-container">
+                        <div class="chart-header">Payments</div>
+                        <div class="chart-canvas">
+                            <canvas id="paymentsChart" height="300"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Invoices Page -->
+                <div id="invoices" class="page">
+                    <div class="data-table">
+                        <div class="table-header">
+                            <h2 class="table-title">Invoices</h2>
+                            <input type="text" class="search-box" placeholder="Search invoices...">
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Invoice #</th>
+                                    <th>Client</th>
+                                    <th>Date</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>#INV-001</td>
+                                    <td>Acme Corporation</td>
+                                    <td>Oct 1, 2025</td>
+                                    <td>$5,250.00</td>
+                                    <td><span class="status-badge status-paid">Paid</span></td>
+                                    <td>
+                                        <button class="action-button secondary">View</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>#INV-002</td>
+                                    <td>Tech Solutions Ltd</td>
+                                    <td>Oct 2, 2025</td>
+                                    <td>$3,800.00</td>
+                                    <td><span class="status-badge status-pending">Pending</span></td>
+                                    <td>
+                                        <button class="action-button secondary">View</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>#INV-003</td>
+                                    <td>Global Enterprises</td>
+                                    <td>Oct 3, 2025</td>
+                                    <td>$7,500.00</td>
+                                    <td><span class="status-badge status-draft">Draft</span></td>
+                                    <td>
+                                        <button class="action-button secondary">View</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Estimates Page -->
+                <div id="estimates" class="page">
+                    <div class="data-table">
+                        <div class="table-header">
+                            <h2 class="table-title">Estimates</h2>
+                            <input type="text" class="search-box" placeholder="Search estimates...">
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Estimate #</th>
+                                    <th>Client</th>
+                                    <th>Date</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>#EST-001</td>
+                                    <td>Future Tech Inc</td>
+                                    <td>Sep 28, 2025</td>
+                                    <td>$12,500.00</td>
+                                    <td><span class="status-badge status-pending">Sent</span></td>
+                                    <td>
+                                        <button class="action-button secondary">View</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>#EST-002</td>
+                                    <td>Innovation Labs</td>
+                                    <td>Sep 30, 2025</td>
+                                    <td>$8,900.00</td>
+                                    <td><span class="status-badge status-draft">Draft</span></td>
+                                    <td>
+                                        <button class="action-button secondary">View</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Payments Page -->
+                <div id="payments" class="page">
+                    <div class="data-table">
+                        <div class="table-header">
+                            <h2 class="table-title">Payments</h2>
+                            <input type="text" class="search-box" placeholder="Search payments...">
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Payment #</th>
+                                    <th>Client</th>
+                                    <th>Invoice</th>
+                                    <th>Date</th>
+                                    <th>Amount</th>
+                                    <th>Method</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>#PAY-001</td>
+                                    <td>Acme Corporation</td>
+                                    <td>#INV-001</td>
+                                    <td>Oct 1, 2025</td>
+                                    <td>$5,250.00</td>
+                                    <td>Bank Transfer</td>
+                                </tr>
+                                <tr>
+                                    <td>#PAY-002</td>
+                                    <td>Digital Systems</td>
+                                    <td>#INV-005</td>
+                                    <td>Sep 29, 2025</td>
+                                    <td>$2,100.00</td>
+                                    <td>Credit Card</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Clients Page -->
+                <div id="clients" class="page">
+                    <div class="data-table">
+                        <div class="table-header">
+                            <h2 class="table-title">Clients</h2>
+                            <input type="text" class="search-box" placeholder="Search clients...">
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Total Invoiced</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Acme Corporation</td>
+                                    <td>contact@acme.com</td>
+                                    <td>+1 234 567 8900</td>
+                                    <td>$15,750.00</td>
+                                    <td>
+                                        <button class="action-button secondary">Edit</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Tech Solutions Ltd</td>
+                                    <td>info@techsolutions.com</td>
+                                    <td>+1 234 567 8901</td>
+                                    <td>$9,200.00</td>
+                                    <td>
+                                        <button class="action-button secondary">Edit</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Global Enterprises</td>
+                                    <td>hello@global-ent.com</td>
+                                    <td>+1 234 567 8902</td>
+                                    <td>$22,500.00</td>
+                                    <td>
+                                        <button class="action-button secondary">Edit</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Items Page -->
+                <div id="items" class="page">
+                    <div class="data-table">
+                        <div class="table-header">
+                            <h2 class="table-title">Items</h2>
+                            <input type="text" class="search-box" placeholder="Search items...">
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Item Name</th>
+                                    <th>Description</th>
+                                    <th>Unit Price</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Web Development</td>
+                                    <td>Custom website development services</td>
+                                    <td>$150.00/hr</td>
+                                    <td>
+                                        <button class="action-button secondary">Edit</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Consulting</td>
+                                    <td>Business consulting services</td>
+                                    <td>$200.00/hr</td>
+                                    <td>
+                                        <button class="action-button secondary">Edit</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Design Services</td>
+                                    <td>UI/UX design and branding</td>
+                                    <td>$125.00/hr</td>
+                                    <td>
+                                        <button class="action-button secondary">Edit</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Taxes Page -->
+                <div id="taxes" class="page">
+                    <div class="data-table">
+                        <div class="table-header">
+                            <h2 class="table-title">Tax Rates</h2>
+                            <input type="text" class="search-box" placeholder="Search taxes...">
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Tax Name</th>
+                                    <th>Rate</th>
+                                    <th>Type</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>VAT</td>
+                                    <td>20%</td>
+                                    <td>Percentage</td>
+                                    <td>
+                                        <button class="action-button secondary">Edit</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Sales Tax</td>
+                                    <td>8.5%</td>
+                                    <td>Percentage</td>
+                                    <td>
+                                        <button class="action-button secondary">Edit</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>GST</td>
+                                    <td>15%</td>
+                                    <td>Percentage</td>
+                                    <td>
+                                        <button class="action-button secondary">Edit</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Reports Page -->
+                <div id="reports" class="page">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-header">Total Revenue (2025)</div>
+                            <div class="stat-amount">
+                                <span class="amount-value">$124,750</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-header">Outstanding Invoices</div>
+                            <div class="stat-amount">
+                                <span class="amount-value">$18,500</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-header">Total Clients</div>
+                            <div class="stat-amount">
+                                <span class="amount-value">47</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <div class="chart-header">Revenue Trends</div>
+                        <div class="empty-state">
+                            <div class="empty-icon">📊</div>
+                            <div class="empty-text">Reports Coming Soon</div>
+                            <div class="empty-subtext">Advanced reporting features will be available here</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settings Page -->
+                <div id="settings" class="page">
+                    <div class="form-container">
+                        <h2 style="margin-bottom: 25px;">Business Settings</h2>
+                        <form>
+                            <div class="form-group">
+                                <label class="form-label">Company Name</label>
+                                <input type="text" class="form-input" value="Zeegrid Billing" placeholder="Enter company name">
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Email</label>
+                                    <input type="email" class="form-input" value="demo@zeegridbilling.org" placeholder="Enter email">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Phone</label>
+                                    <input type="tel" class="form-input" placeholder="Enter phone number">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Address</label>
+                                <input type="text" class="form-input" placeholder="Enter address">
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">City</label>
+                                    <input type="text" class="form-input" placeholder="Enter city">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Country</label>
+                                    <input type="text" class="form-input" placeholder="Enter country">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Currency</label>
+                                <select class="form-input">
+                                    <option>USD - US Dollar</option>
+                                    <option>EUR - Euro</option>
+                                    <option>GBP - British Pound</option>
+                                    <option>INR - Indian Rupee</option>
+                                </select>
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="action-button">Save Changes</button>
+                                <button type="button" class="action-button secondary">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- FAB Button -->
+    <button class="fab" onclick="createNew()" title="Create New">+</button>
+
+    <script>
+        // Navigation
+        function navigateTo(page) {
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            
+            // Show selected page
+            document.getElementById(page).classList.add('active');
+            
+            // Update nav items
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            event.target.closest('.nav-item').classList.add('active');
+            
+            // Update page title
+            const titles = {
+                'dashboard': 'Dashboard',
+                'invoices': 'Invoices',
+                'estimates': 'Estimates',
+                'payments': 'Payments',
+                'clients': 'Clients',
+                'items': 'Items',
+                'taxes': 'Taxes',
+                'reports': 'Reports',
+                'settings': 'Settings'
+            };
+            document.getElementById('pageTitle').textContent = titles[page] || 'Test';
+            
+            // Close sidebar on mobile
+            if (window.innerWidth <= 768) {
+                document.getElementById('sidebar').classList.remove('open');
+            }
+        }
+
+        // Toggle sidebar on mobile
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+        }
+
+        // FAB action
+        function createNew() {
+            const currentPage = document.querySelector('.page.active').id;
+            alert(`Create new ${currentPage.slice(0, -1)}`);
+        }
+
+        // Draw Charts
+        function drawInvoicesChart() {
+            const canvas = document.getElementById('invoicesChart');
+            const ctx = canvas.getContext('2d');
+            
+            // Set canvas size
+            canvas.width = canvas.offsetWidth;
+            canvas.height = 300;
+            
+            const width = canvas.width;
+            const height = canvas.height;
+            const padding = 40;
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, width, height);
+            
+            // Data
+            const months = ['May', 'June', 'July', 'August', 'September', 'October'];
+            const pkrData = [0, 0, 0, 0, 8000, 14000];
+            const cadData = [0, 0, 0, 0, 2000, 4500];
+            
+            const maxValue = 15000;
+            const chartWidth = width - padding * 2;
+            const chartHeight = height - padding * 2;
+            
+            // Draw grid lines
+            ctx.strokeStyle = '#e0e0e0';
+            ctx.lineWidth = 1;
+            for (let i = 0; i <= 3; i++) {
+                const y = padding + (chartHeight / 3) * i;
+                ctx.beginPath();
+                ctx.moveTo(padding, y);
+                ctx.lineTo(width - padding, y);
+                ctx.stroke();
+                
+                // Y-axis labels
+                ctx.fillStyle = '#999';
+                ctx.font = '12px sans-serif';
+                ctx.textAlign = 'right';
+                ctx.fillText((maxValue - (maxValue / 3) * i).toFixed(0), padding - 10, y + 4);
+            }
+            
+            // Draw PKR area
+            ctx.fillStyle = 'rgba(43, 165, 209, 0.3)';
+            ctx.beginPath();
+            ctx.moveTo(padding, height - padding);
+            
+            pkrData.forEach((value, index) => {
+                const x = padding + (chartWidth / (pkrData.length - 1)) * index;
+                const y = height - padding - (value / maxValue) * chartHeight;
+                ctx.lineTo(x, y);
+            });
+            
+            ctx.lineTo(width - padding, height - padding);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Draw PKR line
+            ctx.strokeStyle = '#2ba5d1';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            
+            pkrData.forEach((value, index) => {
+                const x = padding + (chartWidth / (pkrData.length - 1)) * index;
+                const y = height - padding - (value / maxValue) * chartHeight;
+                if (index === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            });
+            ctx.stroke();
+            
+            // Draw CAD area
+            ctx.fillStyle = 'rgba(139, 195, 74, 0.3)';
+            ctx.beginPath();
+            ctx.moveTo(padding, height - padding);
+            
+            cadData.forEach((value, index) => {
+                const x = padding + (chartWidth / (cadData.length - 1)) * index;
+                const y = height - padding - (value / maxValue) * chartHeight;
+                ctx.lineTo(x, y);
+            });
+            
+            ctx.lineTo(width - padding, height - padding);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Draw CAD line
+            ctx.strokeStyle = '#8bc34a';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            
+            cadData.forEach((value, index) => {
+                const x = padding + (chartWidth / (cadData.length - 1)) * index;
+                const y = height - padding - (value / maxValue) * chartHeight;
+                if (index === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            });
+            ctx.stroke();
+            
+            // Draw X-axis labels
+            ctx.fillStyle = '#666';
+            ctx.font = '12px sans-serif';
+            ctx.textAlign = 'center';
+            
+            months.forEach((month, index) => {
+                const x = padding + (chartWidth / (months.length - 1)) * index;
+                ctx.fillText(month, x, height - padding + 20);
+            });
+        }
+
+        function drawPaymentsChart() {
+            const canvas = document.getElementById('paymentsChart');
+            const ctx = canvas.getContext('2d');
+            
+            // Set canvas size
+            canvas.width = canvas.offsetWidth;
+            canvas.height = 300;
+            
+            const width = canvas.width;
+            const height = canvas.height;
+            const padding = 40;
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, width, height);
+            
+            // Draw empty state message
+            ctx.fillStyle = '#999';
+            ctx.font = '14px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('No payment data available', width / 2, height / 2);
+        }
+
+        // Initialize charts when page loads
+        window.addEventListener('load', () => {
+            drawInvoicesChart();
+            drawPaymentsChart();
+        });
+
+        // Redraw charts on window resize
+        window.addEventListener('resize', () => {
+            drawInvoicesChart();
+            drawPaymentsChart();
+        });
+
+        // Currency toggle functionality
+        document.querySelectorAll('.currency-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.currency-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Search functionality placeholder
+        document.querySelectorAll('.search-box').forEach(searchBox => {
+            searchBox.addEventListener('input', function(e) {
+                console.log('Searching for:', e.target.value);
+                // Search functionality will be implemented with backend
+            });
+        });
+
+        // Form submission placeholder
+        document.querySelectorAll('form').forEach(form => {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                alert('Form submitted! This will be connected to the backend API.');
+            });
+        });
+    </script>
+</body>
+</html>
